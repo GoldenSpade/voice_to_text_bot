@@ -42,7 +42,7 @@ const downloadFile = (url, filepath) => {
   });
 };
 
-// /start command handler
+// start command handler
 bot.start((ctx) => {
   ctx.reply(
     'Hello! I am a bot for transcribing voice messages.\n\n' +
