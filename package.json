@@ -1,0 +1,25 @@
+{
+  "name": "voice-to-text-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for voice message transcription using OpenAI",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "voice",
+    "transcription",
+    "openai"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "telegraf": "^4.16.3",
+    "openai": "^4.77.3",
+    "dotenv": "^16.4.7"
+  }
+}
