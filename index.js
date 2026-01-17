@@ -39,7 +39,7 @@ bot.hears('🎤 Transcribe Audio', (ctx) => {
 });
 
 // Translate button handler
-bot.hears('🌍 Transcribe & Translate', (ctx) => {
+bot.hears('🌍 Transcribe Audio & Translate', (ctx) => {
   userSessions.set(ctx.from.id, { mode: 'translate', awaitingLanguage: true });
   ctx.reply(
     'Select the language you want to translate to:',
@@ -48,7 +48,7 @@ bot.hears('🌍 Transcribe & Translate', (ctx) => {
 });
 
 // Voice generation button handler
-bot.hears('🎙️ Transcribe, Translate & Voice', (ctx) => {
+bot.hears('🎙️ Transcribe Audio, Translate & Voice', (ctx) => {
   userSessions.set(ctx.from.id, { mode: 'voice', step: 'language' });
   ctx.reply(
     'Select the language you want to translate to:',
