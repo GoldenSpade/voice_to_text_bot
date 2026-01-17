@@ -81,9 +81,11 @@ bot.on('voice', async (ctx) => {
   if (session.mode === 'transcribe') {
     await handleTranscription(ctx);
     userSessions.delete(ctx.from.id);
+    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else if (session.mode === 'translate' && session.targetLanguage) {
     await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
     userSessions.delete(ctx.from.id);
+    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else {
     ctx.reply('Please select a language first.');
   }
@@ -104,9 +106,11 @@ bot.on('audio', async (ctx) => {
   if (session.mode === 'transcribe') {
     await handleTranscription(ctx);
     userSessions.delete(ctx.from.id);
+    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else if (session.mode === 'translate' && session.targetLanguage) {
     await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
     userSessions.delete(ctx.from.id);
+    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else {
     ctx.reply('Please select a language first.');
   }
