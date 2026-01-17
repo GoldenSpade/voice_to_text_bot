@@ -35,6 +35,18 @@ bot.hears('🌍 Transcribe & Translate', (ctx) => {
   );
 });
 
+// Pagination handler
+bot.action(/^page_(\d+)$/, (ctx) => {
+  const page = parseInt(ctx.match[1]);
+  ctx.answerCbQuery();
+  ctx.editMessageReplyMarkup(languageSelectionKeyboard(page).reply_markup);
+});
+
+// Page info button (does nothing, just shows page number)
+bot.action('page_info', (ctx) => {
+  ctx.answerCbQuery();
+});
+
 // Language selection callback handler
 bot.action(/^lang_(.+)$/, (ctx) => {
   const language = ctx.match[1];

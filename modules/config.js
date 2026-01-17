@@ -10,27 +10,32 @@ export const config = {
 };
 
 export const LANGUAGES = {
+  ar: { name: 'Arabic', code: 'ar' },
+  be: { name: 'Belarusian', code: 'be' },
+  zh: { name: 'Chinese', code: 'zh' },
+  nl: { name: 'Dutch', code: 'nl' },
   en: { name: 'English', code: 'en' },
-  es: { name: 'Spanish', code: 'es' },
   fr: { name: 'French', code: 'fr' },
+  ka: { name: 'Georgian', code: 'ka' },
   de: { name: 'German', code: 'de' },
+  hi: { name: 'Hindi', code: 'hi' },
+  id: { name: 'Indonesian', code: 'id' },
   it: { name: 'Italian', code: 'it' },
+  ja: { name: 'Japanese', code: 'ja' },
+  ko: { name: 'Korean', code: 'ko' },
+  pl: { name: 'Polish', code: 'pl' },
   pt: { name: 'Portuguese', code: 'pt' },
   ru: { name: 'Russian', code: 'ru' },
-  zh: { name: 'Chinese', code: 'zh' },
-  ja: { name: 'Japanese', code: 'ja' },
-  ar: { name: 'Arabic', code: 'ar' },
-  pl: { name: 'Polish', code: 'pl' },
-  uk: { name: 'Ukrainian', code: 'uk' },
-  ko: { name: 'Korean', code: 'ko' },
-  hi: { name: 'Hindi', code: 'hi' },
-  tr: { name: 'Turkish', code: 'tr' },
-  nl: { name: 'Dutch', code: 'nl' },
+  es: { name: 'Spanish', code: 'es' },
   sv: { name: 'Swedish', code: 'sv' },
-  vi: { name: 'Vietnamese', code: 'vi' },
   th: { name: 'Thai', code: 'th' },
-  id: { name: 'Indonesian', code: 'id' }
+  tr: { name: 'Turkish', code: 'tr' },
+  uk: { name: 'Ukrainian', code: 'uk' },
+  vi: { name: 'Vietnamese', code: 'vi' }
 };
+
+// Pagination settings
+export const LANGUAGES_PER_PAGE = 8;
 
 export const MENU_ACTIONS = {
   TRANSCRIBE: 'transcribe',
