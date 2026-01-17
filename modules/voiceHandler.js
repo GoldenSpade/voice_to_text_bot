@@ -113,10 +113,7 @@ export const handleVoiceGeneration = async (ctx, targetLanguage, voiceCode) => {
     fs.writeFileSync(outputFilepath, audioBuffer);
 
     // Send audio file
-    await ctx.replyWithAudio(
-      { source: outputFilepath },
-      { caption: `Voice: ${voiceName}` }
-    );
+    await ctx.replyWithAudio({ source: outputFilepath });
 
     // Clean up
     deleteFile(outputFilepath);

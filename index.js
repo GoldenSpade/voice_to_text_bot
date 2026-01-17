@@ -57,6 +57,18 @@ bot.action('page_info', (ctx) => {
   ctx.answerCbQuery();
 });
 
+// Voice pagination handler
+bot.action(/^voice_page_(\d+)$/, (ctx) => {
+  const page = parseInt(ctx.match[1]);
+  ctx.answerCbQuery();
+  ctx.editMessageReplyMarkup(voiceSelectionKeyboard(page).reply_markup);
+});
+
+// Voice page info button (does nothing, just shows page number)
+bot.action('voice_page_info', (ctx) => {
+  ctx.answerCbQuery();
+});
+
 // Voice selection callback handler
 bot.action(/^voice_(.+)$/, (ctx) => {
   const voice = ctx.match[1];

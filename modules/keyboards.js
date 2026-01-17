@@ -1,5 +1,5 @@
 import { Markup } from 'telegraf';
-import { LANGUAGES, VOICES, MENU_ACTIONS, LANGUAGES_PER_PAGE } from './config.js';
+import { LANGUAGES, VOICES, MENU_ACTIONS, LANGUAGES_PER_PAGE, VOICES_PER_PAGE } from './config.js';
 
 /**
  * Main menu keyboard with transcription and translation buttons
@@ -62,14 +62,49 @@ export const languageSelectionKeyboard = (page = 0) => {
 };
 
 /**
- * Voice selection keyboard
+ * Voice selection keyboard with pagination
  */
-export const voiceSelectionKeyboard = () => {
-  const voiceButtons = Object.values(VOICES).map(voice =>
-    [Markup.button.callback(`${voice.name} (${voice.description})`, `voice_${voice.code}`)]
-  );
+export const voiceSelectionKeyboard = (page = 0) => {
+  const voicesList = Object.values(VOICES);
+  const totalPages = Math.ceil(voicesList.length / VOICES_PER_PAGE);
+  const startIndex = page * VOICES_PER_PAGE;
+  const endIndex = startIndex + VOICES_PER_PAGE;
+  const currentPageVoices = voicesList.slice(startIndex, endIndex);
 
-  voiceButtons.push([Markup.button.callback('⬅️ Main Menu', 'main_menu')]);
+  // Create voice buttons (2 per row)
+  const voiceButtons = [];
+  for (let i = 0; i < currentPageVoices.length; i += 2) {
+    const row = [];
+    row.push(Markup.button.callback(
+      `${currentPageVoices[i].name} (${currentPageVoices[i].description})`,
+      `voice_${currentPageVoices[i].code}`
+    ));
+    if (i + 1 < currentPageVoices.length) {
+      row.push(Markup.button.callback(
+        `${currentPageVoices[i + 1].name} (${currentPageVoices[i + 1].description})`,
+        `voice_${currentPageVoices[i + 1].code}`
+      ));
+    }
+    voiceButtons.push(row);
+  }
+
+  // Add pagination buttons
+  const navigationButtons = [];
+  if (page > 0) {
+    navigationButtons.push(Markup.button.callback('⬅️ Previous', `voice_page_${page - 1}`));
+  }
+  if (page < totalPages - 1) {
+    navigationButtons.push(Markup.button.callback('Next ➡️', `voice_page_${page + 1}`));
+  }
+  if (navigationButtons.length > 0) {
+    voiceButtons.push(navigationButtons);
+  }
+
+  // Add page indicator and back button
+  voiceButtons.push([
+    Markup.button.callback(`📄 ${page + 1}/${totalPages}`, 'voice_page_info'),
+    Markup.button.callback('⬅️ Main Menu', 'main_menu')
+  ]);
 
   return Markup.inlineKeyboard(voiceButtons);
 };
