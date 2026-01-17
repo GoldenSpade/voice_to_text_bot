@@ -1,142 +1,127 @@
 import { Telegraf } from 'telegraf';
-import OpenAI from 'openai';
-import dotenv from 'dotenv';
-import fs from 'fs';
-import https from 'https';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { config } from './modules/config.js';
+import { mainMenuKeyboard, languageSelectionKeyboard } from './modules/keyboards.js';
+import { handleTranscription } from './modules/transcriptionHandler.js';
+import { handleTranscriptionAndTranslation } from './modules/translationHandler.js';
 
-// Loading environment variables
-dotenv.config();
+// Initialize bot
+const bot = new Telegraf(config.TELEGRAM_BOT_TOKEN);
 
-// Getting __dirname in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// User session storage
+const userSessions = new Map();
 
-// Initializing clients
-const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
-
-// Create a folder for temporary files
-const tempDir = path.join(__dirname, 'temp');
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir);
-}
-
-// Function for downloading a file
-const downloadFile = (url, filepath) => {
-  return new Promise((resolve, reject) => {
-    const file = fs.createWriteStream(filepath);
-    https.get(url, (response) => {
-      response.pipe(file);
-      file.on('finish', () => {
-        file.close();
-        resolve();
-      });
-    }).on('error', (err) => {
-      fs.unlink(filepath, () => {});
-      reject(err);
-    });
-  });
-};
-
-// start command handler
+// Start command handler
 bot.start((ctx) => {
+  userSessions.delete(ctx.from.id);
   ctx.reply(
     'Hello! I am a bot for transcribing voice messages.\n\n' +
-    'Send me a voice message and I will convert it to text.'
+    'Choose an option:',
+    mainMenuKeyboard()
+  );
+});
+
+// Main menu button handler
+bot.hears('🎤 Transcribe Audio', (ctx) => {
+  userSessions.set(ctx.from.id, { mode: 'transcribe' });
+  ctx.reply(
+    'Send me a voice message or audio file and I will transcribe it.',
+    { reply_markup: { remove_keyboard: true } }
+  );
+});
+
+// Translate button handler
+bot.hears('🌍 Transcribe & Translate', (ctx) => {
+  userSessions.set(ctx.from.id, { mode: 'translate', awaitingLanguage: true });
+  ctx.reply(
+    'Select the language you want to translate to:',
+    languageSelectionKeyboard()
+  );
+});
+
+// Language selection callback handler
+bot.action(/^lang_(.+)$/, (ctx) => {
+  const language = ctx.match[1];
+  const session = userSessions.get(ctx.from.id) || {};
+
+  session.targetLanguage = language;
+  session.awaitingLanguage = false;
+  session.awaitingAudio = true;
+  userSessions.set(ctx.from.id, session);
+
+  ctx.answerCbQuery();
+  ctx.editMessageText(
+    `Language selected: ${language.toUpperCase()}\n\n` +
+    'Now send me a voice message or audio file to transcribe and translate.'
+  );
+});
+
+// Back to main menu callback handler
+bot.action('main_menu', (ctx) => {
+  userSessions.delete(ctx.from.id);
+  ctx.answerCbQuery();
+  ctx.editMessageText('Main menu:');
+  ctx.reply(
+    'Choose an option:',
+    mainMenuKeyboard()
   );
 });
 
 // Voice message handler
 bot.on('voice', async (ctx) => {
-  try {
-    // Sending a message about the start of processing
-    await ctx.reply('Processing your voice message...');
+  const session = userSessions.get(ctx.from.id);
 
-    // Getting information about a file
-    const fileId = ctx.message.voice.file_id;
-    const fileLink = await ctx.telegram.getFileLink(fileId);
-
-    // Create a unique file name
-    const filename = `voice_${Date.now()}.ogg`;
-    const filepath = path.join(tempDir, filename);
-
-    // Downloading an audio file
-    await downloadFile(fileLink.href, filepath);
-
-    // Sending a file for transcription
-    const transcription = await openai.audio.transcriptions.create({
-      file: fs.createReadStream(filepath),
-      model: 'gpt-4o-transcribe'
-    });
-
-    // Delete temporary file
-    fs.unlinkSync(filepath);
-
-    // Sending the result
-    if (transcription.text) {
-      await ctx.reply(transcription.text);
-    } else {
-      await ctx.reply('Sorry, could not recognize speech in the audio message.');
-    }
-
-  } catch (error) {
-    console.error('Error processing voice message:', error);
-    await ctx.reply(
-      'An error occurred while processing your message. ' +
-      'Please try again.'
+  if (!session) {
+    ctx.reply(
+      'Please select an option from the main menu first.',
+      mainMenuKeyboard()
     );
+    return;
+  }
 
-    // Attempt to delete file in case of error
-    const filename = `voice_${Date.now()}.ogg`;
-    const filepath = path.join(tempDir, filename);
-    if (fs.existsSync(filepath)) {
-      fs.unlinkSync(filepath);
-    }
+  if (session.mode === 'transcribe') {
+    await handleTranscription(ctx);
+    userSessions.delete(ctx.from.id);
+    ctx.reply('Choose an option:', mainMenuKeyboard());
+  } else if (session.mode === 'translate' && session.targetLanguage) {
+    await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
+    userSessions.delete(ctx.from.id);
+    ctx.reply('Choose an option:', mainMenuKeyboard());
+  } else {
+    ctx.reply('Please select a language first.');
   }
 });
 
-// Handler for regular audio files
+// Audio file handler
 bot.on('audio', async (ctx) => {
-  try {
-    await ctx.reply('Processing your audio file...');
+  const session = userSessions.get(ctx.from.id);
 
-    const fileId = ctx.message.audio.file_id;
-    const fileLink = await ctx.telegram.getFileLink(fileId);
-
-    const filename = `audio_${Date.now()}.mp3`;
-    const filepath = path.join(tempDir, filename);
-
-    await downloadFile(fileLink.href, filepath);
-
-    const transcription = await openai.audio.transcriptions.create({
-      file: fs.createReadStream(filepath),
-      model: 'gpt-4o-transcribe'
-    });
-
-    fs.unlinkSync(filepath);
-
-    if (transcription.text) {
-      await ctx.reply(transcription.text);
-    } else {
-      await ctx.reply('Sorry, could not recognize speech in the audio file.');
-    }
-
-  } catch (error) {
-    console.error('Error processing audio file:', error);
-    await ctx.reply(
-      'An error occurred while processing your file. ' +
-      'Please try again.'
+  if (!session) {
+    ctx.reply(
+      'Please select an option from the main menu first.',
+      mainMenuKeyboard()
     );
+    return;
+  }
+
+  if (session.mode === 'transcribe') {
+    await handleTranscription(ctx);
+    userSessions.delete(ctx.from.id);
+    ctx.reply('Choose an option:', mainMenuKeyboard());
+  } else if (session.mode === 'translate' && session.targetLanguage) {
+    await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
+    userSessions.delete(ctx.from.id);
+    ctx.reply('Choose an option:', mainMenuKeyboard());
+  } else {
+    ctx.reply('Please select a language first.');
   }
 });
 
 // Handler for all other messages
 bot.on('message', (ctx) => {
-  ctx.reply('Please send a voice message or audio file for transcription.');
+  ctx.reply(
+    'Please use the buttons below to select an option.',
+    mainMenuKeyboard()
+  );
 });
 
 // Launch the bot
