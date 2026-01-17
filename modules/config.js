@@ -6,7 +6,8 @@ export const config = {
   TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
   OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   TRANSCRIPTION_MODEL: 'gpt-4o-transcribe',
-  TRANSLATION_MODEL: 'gpt-4o-mini'
+  TRANSLATION_MODEL: 'gpt-4o-mini',
+  TTS_MODEL: 'tts-1'  // or 'tts-1-hd' for higher quality, or 'gpt-4o-mini-tts' for new voices
 };
 
 export const LANGUAGES = {
@@ -34,21 +35,17 @@ export const LANGUAGES = {
   vi: { name: 'Vietnamese', code: 'vi' }
 };
 
-// Available TTS voices from OpenAI
+// Available TTS voices from OpenAI (compatible with tts-1 and tts-1-hd)
 export const VOICES = {
   alloy: { name: 'Alloy', code: 'alloy', description: 'Neutral' },
   ash: { name: 'Ash', code: 'ash', description: 'Male' },
-  ballad: { name: 'Ballad', code: 'ballad', description: 'Expressive' },
-  cedar: { name: 'Cedar', code: 'cedar', description: 'Deep' },
   coral: { name: 'Coral', code: 'coral', description: 'Warm female' },
   echo: { name: 'Echo', code: 'echo', description: 'Male' },
   fable: { name: 'Fable', code: 'fable', description: 'British accent' },
-  marin: { name: 'Marin', code: 'marin', description: 'Clear female' },
   nova: { name: 'Nova', code: 'nova', description: 'Energetic female' },
   onyx: { name: 'Onyx', code: 'onyx', description: 'Deep male' },
   sage: { name: 'Sage', code: 'sage', description: 'Calm' },
-  shimmer: { name: 'Shimmer', code: 'shimmer', description: 'Soft female' },
-  verse: { name: 'Verse', code: 'verse', description: 'Gentle' }
+  shimmer: { name: 'Shimmer', code: 'shimmer', description: 'Soft female' }
 };
 
 // Pagination settings

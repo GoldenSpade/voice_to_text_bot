@@ -37,7 +37,7 @@ const translateText = async (text, targetLanguage) => {
  */
 const textToSpeech = async (text, voice) => {
   const mp3 = await openai.audio.speech.create({
-    model: 'tts-1',
+    model: config.TTS_MODEL,
     voice: voice,
     input: text
   });
