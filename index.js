@@ -4,6 +4,7 @@ import { mainMenuKeyboard, languageSelectionKeyboard, voiceSelectionKeyboard } f
 import { handleTranscription } from './modules/transcriptionHandler.js';
 import { handleTranscriptionAndTranslation } from './modules/translationHandler.js';
 import { handleVoiceGeneration } from './modules/voiceHandler.js';
+import { handleTextTranslation } from './modules/textTranslationHandler.js';
 
 // Initialize bot
 const bot = new Telegraf(config.TELEGRAM_BOT_TOKEN);
@@ -39,6 +40,15 @@ bot.hears('🌍 Transcribe & Translate', (ctx) => {
 // Voice generation button handler
 bot.hears('🎙️ Transcribe, Translate & Voice', (ctx) => {
   userSessions.set(ctx.from.id, { mode: 'voice', step: 'language' });
+  ctx.reply(
+    'Select the language you want to translate to:',
+    languageSelectionKeyboard()
+  );
+});
+
+// Text translation button handler
+bot.hears('🔄 Translate Text', (ctx) => {
+  userSessions.set(ctx.from.id, { mode: 'text_translate', awaitingLanguage: true });
   ctx.reply(
     'Select the language you want to translate to:',
     languageSelectionKeyboard()
@@ -103,6 +113,17 @@ bot.action(/^lang_(.+)$/, (ctx) => {
       'Now select a voice:'
     );
     ctx.reply('Select a voice for text-to-speech:', voiceSelectionKeyboard());
+  } else if (session.mode === 'text_translate') {
+    // For text translation mode
+    session.awaitingLanguage = false;
+    session.awaitingText = true;
+    userSessions.set(ctx.from.id, session);
+
+    ctx.answerCbQuery();
+    ctx.editMessageText(
+      `Language selected: ${language.toUpperCase()}\n\n` +
+      'Now send me a text message to translate.'
+    );
   } else {
     // For translate mode
     session.awaitingLanguage = false;
@@ -177,6 +198,36 @@ bot.on('audio', async (ctx) => {
     userSessions.delete(ctx.from.id);
   } else {
     ctx.reply('Please select language and voice first.');
+  }
+});
+
+// Text message handler
+bot.on('text', async (ctx) => {
+  const session = userSessions.get(ctx.from.id);
+
+  // Skip if it's a command or button press
+  if (ctx.message.text.startsWith('/') || ctx.message.text.startsWith('🎤') ||
+      ctx.message.text.startsWith('🌍') || ctx.message.text.startsWith('🎙️') ||
+      ctx.message.text.startsWith('🔄')) {
+    return;
+  }
+
+  if (!session) {
+    ctx.reply(
+      'Please select an option from the main menu first.',
+      mainMenuKeyboard()
+    );
+    return;
+  }
+
+  if (session.mode === 'text_translate' && session.targetLanguage) {
+    await handleTextTranslation(ctx, session.targetLanguage);
+    userSessions.delete(ctx.from.id);
+  } else {
+    ctx.reply(
+      'Please use the buttons below to select an option.',
+      mainMenuKeyboard()
+    );
   }
 });
 
