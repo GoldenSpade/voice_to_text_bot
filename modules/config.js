@@ -50,7 +50,6 @@ export const VOICES = {
 
 // Pagination settings
 export const LANGUAGES_PER_PAGE = 8;
-export const VOICES_PER_PAGE = 6;
 
 export const MENU_ACTIONS = {
   TRANSCRIBE: 'transcribe',
