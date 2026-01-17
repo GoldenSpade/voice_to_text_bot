@@ -19,7 +19,17 @@ export const LANGUAGES = {
   ru: { name: 'Russian', code: 'ru' },
   zh: { name: 'Chinese', code: 'zh' },
   ja: { name: 'Japanese', code: 'ja' },
-  ar: { name: 'Arabic', code: 'ar' }
+  ar: { name: 'Arabic', code: 'ar' },
+  pl: { name: 'Polish', code: 'pl' },
+  uk: { name: 'Ukrainian', code: 'uk' },
+  ko: { name: 'Korean', code: 'ko' },
+  hi: { name: 'Hindi', code: 'hi' },
+  tr: { name: 'Turkish', code: 'tr' },
+  nl: { name: 'Dutch', code: 'nl' },
+  sv: { name: 'Swedish', code: 'sv' },
+  vi: { name: 'Vietnamese', code: 'vi' },
+  th: { name: 'Thai', code: 'th' },
+  id: { name: 'Indonesian', code: 'id' }
 };
 
 export const MENU_ACTIONS = {
