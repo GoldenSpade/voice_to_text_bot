@@ -63,7 +63,6 @@ export const handleTranscriptionAndTranslation = async (ctx, targetLanguage) => 
     await downloadFile(fileLink.href, filepath);
 
     // Transcribe
-    await ctx.reply('Transcribing...');
     const transcription = await openai.audio.transcriptions.create({
       file: fs.createReadStream(filepath),
       model: config.TRANSCRIPTION_MODEL
@@ -78,7 +77,6 @@ export const handleTranscriptionAndTranslation = async (ctx, targetLanguage) => 
     }
 
     // Translate
-    await ctx.reply('Translating...');
     const translatedText = await translateText(transcription.text, targetLanguage);
 
     const languageName = LANGUAGES[targetLanguage]?.name || targetLanguage;

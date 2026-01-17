@@ -6,8 +6,7 @@ import { LANGUAGES, MENU_ACTIONS } from './config.js';
  */
 export const mainMenuKeyboard = () => {
   return Markup.keyboard([
-    [Markup.button.text('🎤 Transcribe Audio')],
-    [Markup.button.text('🌍 Transcribe & Translate')]
+    [Markup.button.text('🎤 Transcribe Audio'), Markup.button.text('🌍 Transcribe & Translate')]
   ])
     .resize()
     .persistent();
