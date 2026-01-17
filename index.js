@@ -74,6 +74,57 @@ bot.hears('🔊 Text to Voice', (ctx) => {
   );
 });
 
+// Help button handler
+bot.hears('📖 Help', (ctx) => {
+  const helpMessage =
+    '📖 *Bot Instructions*\n\n' +
+    'This bot offers 5 main features:\n\n' +
+
+    '🎤 *Transcribe Audio*\n' +
+    'Convert voice messages or audio files to text.\n' +
+    '• Click the button\n' +
+    '• Send a voice message or audio file\n' +
+    '• Receive the transcription\n\n' +
+
+    '🔄 *Translate Text*\n' +
+    'Translate any text message to another language.\n' +
+    '• Click the button\n' +
+    '• Select target language\n' +
+    '• Send your text\n' +
+    '• Receive translation\n\n' +
+
+    '🌍 *Transcribe Audio & Translate*\n' +
+    'Convert voice to text and translate it.\n' +
+    '• Click the button\n' +
+    '• Select target language\n' +
+    '• Send voice message or audio file\n' +
+    '• Receive original text and translation\n\n' +
+
+    '🎙️ *Transcribe Audio, Translate & Voice*\n' +
+    'Full cycle: voice to text, translate, and generate new voice.\n' +
+    '• Click the button\n' +
+    '• Select target language\n' +
+    '• Select voice type\n' +
+    '• Send voice message or audio file\n' +
+    '• Receive original text, translation, and audio in selected voice\n\n' +
+
+    '🔊 *Text to Voice*\n' +
+    'Convert any text message to speech.\n' +
+    '• Click the button\n' +
+    '• Select voice type\n' +
+    '• Send your text\n' +
+    '• Receive audio file\n\n' +
+
+    '*Supported Languages:* 22 languages including English, Russian, Spanish, French, German, Chinese, Japanese, Arabic, and more.\n\n' +
+    '*Available Voices:* 9 different voices - Alloy, Ash, Coral, Echo, Fable, Nova, Onyx, Sage, Shimmer.\n\n' +
+    '💡 *Tips:*\n' +
+    '• Use /menu command anytime to return to main menu\n' +
+    '• All audio files are automatically deleted after processing\n' +
+    '• Supports various audio formats: mp3, ogg, wav, m4a, and more';
+
+  ctx.reply(helpMessage, { parse_mode: 'Markdown' });
+});
+
 // Pagination handler
 bot.action(/^page_(\d+)$/, (ctx) => {
   const page = parseInt(ctx.match[1]);

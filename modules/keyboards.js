@@ -8,7 +8,7 @@ export const mainMenuKeyboard = () => {
   return Markup.keyboard([
     [Markup.button.text('🎤 Transcribe Audio'), Markup.button.text('🔄 Translate Text')],
     [Markup.button.text('🌍 Transcribe Audio & Translate'), Markup.button.text('🎙️ Transcribe Audio, Translate & Voice')],
-    [Markup.button.text('🔊 Text to Voice')]
+    [Markup.button.text('🔊 Text to Voice'), Markup.button.text('📖 Help')]
   ])
     .resize()
     .persistent();
