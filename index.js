@@ -23,6 +23,15 @@ bot.start((ctx) => {
   );
 });
 
+// Menu command handler - restores main menu at any time
+bot.command('menu', (ctx) => {
+  userSessions.delete(ctx.from.id);
+  ctx.reply(
+    'Main menu:',
+    mainMenuKeyboard()
+  );
+});
+
 // Main menu button handler
 bot.hears('🎤 Transcribe Audio', (ctx) => {
   userSessions.set(ctx.from.id, { mode: 'transcribe' });
