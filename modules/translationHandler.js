@@ -82,10 +82,12 @@ export const handleTranscriptionAndTranslation = async (ctx, targetLanguage) => 
     const translatedText = await translateText(transcription.text, targetLanguage);
 
     const languageName = LANGUAGES[targetLanguage]?.name || targetLanguage;
-    await ctx.reply(
-      `🎤 Original:\n${transcription.text}\n\n` +
-      `🌍 Translated to ${languageName}:\n${translatedText}`
-    );
+
+    // Send as separate messages
+    await ctx.reply('🎤 Original:');
+    await ctx.reply(transcription.text);
+    await ctx.reply(`🌍 Translated to ${languageName}:`);
+    await ctx.reply(translatedText);
 
   } catch (error) {
     console.error('Error processing transcription and translation:', error);
