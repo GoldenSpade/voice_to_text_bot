@@ -121,11 +121,14 @@ bot.hears('📖 Help', (ctx) => {
     '• Use /menu command anytime to return to main menu\n' +
     '• Supports various audio formats: mp3, ogg, wav, m4a, and more';
 
-  const backButton = Markup.inlineKeyboard([
-    [Markup.button.callback('⬅️ Back', 'close_help')]
-  ]);
-
-  ctx.reply(helpMessage, { parse_mode: 'Markdown', ...backButton });
+  ctx.reply(helpMessage, {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: '⬅️ Back', callback_data: 'close_help' }]
+      ]
+    }
+  });
 });
 
 // Close help message handler
