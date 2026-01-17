@@ -1,8 +1,9 @@
 import { Telegraf } from 'telegraf';
 import { config } from './modules/config.js';
-import { mainMenuKeyboard, languageSelectionKeyboard } from './modules/keyboards.js';
+import { mainMenuKeyboard, languageSelectionKeyboard, voiceSelectionKeyboard } from './modules/keyboards.js';
 import { handleTranscription } from './modules/transcriptionHandler.js';
 import { handleTranscriptionAndTranslation } from './modules/translationHandler.js';
+import { handleVoiceGeneration } from './modules/voiceHandler.js';
 
 // Initialize bot
 const bot = new Telegraf(config.TELEGRAM_BOT_TOKEN);
@@ -35,6 +36,15 @@ bot.hears('🌍 Transcribe & Translate', (ctx) => {
   );
 });
 
+// Voice generation button handler
+bot.hears('🎙️ Transcribe, Translate & Voice', (ctx) => {
+  userSessions.set(ctx.from.id, { mode: 'voice', step: 'language' });
+  ctx.reply(
+    'Select the language you want to translate to:',
+    languageSelectionKeyboard()
+  );
+});
+
 // Pagination handler
 bot.action(/^page_(\d+)$/, (ctx) => {
   const page = parseInt(ctx.match[1]);
@@ -47,21 +57,52 @@ bot.action('page_info', (ctx) => {
   ctx.answerCbQuery();
 });
 
+// Voice selection callback handler
+bot.action(/^voice_(.+)$/, (ctx) => {
+  const voice = ctx.match[1];
+  const session = userSessions.get(ctx.from.id) || {};
+
+  session.selectedVoice = voice;
+  session.step = 'audio';
+  userSessions.set(ctx.from.id, session);
+
+  ctx.answerCbQuery();
+  ctx.editMessageText(
+    `Voice selected: ${voice.toUpperCase()}\n\n` +
+    'Now send me a voice message or audio file to transcribe, translate and generate voice.'
+  );
+});
+
 // Language selection callback handler
 bot.action(/^lang_(.+)$/, (ctx) => {
   const language = ctx.match[1];
   const session = userSessions.get(ctx.from.id) || {};
 
   session.targetLanguage = language;
-  session.awaitingLanguage = false;
-  session.awaitingAudio = true;
-  userSessions.set(ctx.from.id, session);
 
-  ctx.answerCbQuery();
-  ctx.editMessageText(
-    `Language selected: ${language.toUpperCase()}\n\n` +
-    'Now send me a voice message or audio file to transcribe and translate.'
-  );
+  // If in voice mode, ask for voice selection
+  if (session.mode === 'voice') {
+    session.step = 'voice';
+    userSessions.set(ctx.from.id, session);
+
+    ctx.answerCbQuery();
+    ctx.editMessageText(
+      `Language selected: ${language.toUpperCase()}\n\n` +
+      'Now select a voice:'
+    );
+    ctx.reply('Select a voice for text-to-speech:', voiceSelectionKeyboard());
+  } else {
+    // For translate mode
+    session.awaitingLanguage = false;
+    session.awaitingAudio = true;
+    userSessions.set(ctx.from.id, session);
+
+    ctx.answerCbQuery();
+    ctx.editMessageText(
+      `Language selected: ${language.toUpperCase()}\n\n` +
+      'Now send me a voice message or audio file to transcribe and translate.'
+    );
+  }
 });
 
 // Back to main menu callback handler
@@ -93,8 +134,11 @@ bot.on('voice', async (ctx) => {
   } else if (session.mode === 'translate' && session.targetLanguage) {
     await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
     userSessions.delete(ctx.from.id);
+  } else if (session.mode === 'voice' && session.targetLanguage && session.selectedVoice) {
+    await handleVoiceGeneration(ctx, session.targetLanguage, session.selectedVoice);
+    userSessions.delete(ctx.from.id);
   } else {
-    ctx.reply('Please select a language first.');
+    ctx.reply('Please select language and voice first.');
   }
 });
 
@@ -116,8 +160,11 @@ bot.on('audio', async (ctx) => {
   } else if (session.mode === 'translate' && session.targetLanguage) {
     await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
     userSessions.delete(ctx.from.id);
+  } else if (session.mode === 'voice' && session.targetLanguage && session.selectedVoice) {
+    await handleVoiceGeneration(ctx, session.targetLanguage, session.selectedVoice);
+    userSessions.delete(ctx.from.id);
   } else {
-    ctx.reply('Please select a language first.');
+    ctx.reply('Please select language and voice first.');
   }
 });
 

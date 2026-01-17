@@ -1,12 +1,13 @@
 import { Markup } from 'telegraf';
-import { LANGUAGES, MENU_ACTIONS, LANGUAGES_PER_PAGE } from './config.js';
+import { LANGUAGES, VOICES, MENU_ACTIONS, LANGUAGES_PER_PAGE } from './config.js';
 
 /**
  * Main menu keyboard with transcription and translation buttons
  */
 export const mainMenuKeyboard = () => {
   return Markup.keyboard([
-    [Markup.button.text('🎤 Transcribe Audio'), Markup.button.text('🌍 Transcribe & Translate')]
+    [Markup.button.text('🎤 Transcribe Audio'), Markup.button.text('🌍 Transcribe & Translate')],
+    [Markup.button.text('🎙️ Transcribe, Translate & Voice')]
   ])
     .resize()
     .persistent();
@@ -58,6 +59,19 @@ export const languageSelectionKeyboard = (page = 0) => {
   ]);
 
   return Markup.inlineKeyboard(languageButtons);
+};
+
+/**
+ * Voice selection keyboard
+ */
+export const voiceSelectionKeyboard = () => {
+  const voiceButtons = Object.values(VOICES).map(voice =>
+    [Markup.button.callback(`${voice.name} (${voice.description})`, `voice_${voice.code}`)]
+  );
+
+  voiceButtons.push([Markup.button.callback('⬅️ Main Menu', 'main_menu')]);
+
+  return Markup.inlineKeyboard(voiceButtons);
 };
 
 /**

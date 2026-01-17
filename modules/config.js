@@ -34,11 +34,22 @@ export const LANGUAGES = {
   vi: { name: 'Vietnamese', code: 'vi' }
 };
 
+// Available TTS voices from OpenAI
+export const VOICES = {
+  alloy: { name: 'Alloy', code: 'alloy', description: 'Neutral' },
+  echo: { name: 'Echo', code: 'echo', description: 'Male' },
+  fable: { name: 'Fable', code: 'fable', description: 'British accent' },
+  onyx: { name: 'Onyx', code: 'onyx', description: 'Deep male' },
+  nova: { name: 'Nova', code: 'nova', description: 'Female' },
+  shimmer: { name: 'Shimmer', code: 'shimmer', description: 'Soft female' }
+};
+
 // Pagination settings
 export const LANGUAGES_PER_PAGE = 8;
 
 export const MENU_ACTIONS = {
   TRANSCRIBE: 'transcribe',
   TRANSLATE: 'translate',
+  VOICE: 'voice',
   MAIN_MENU: 'main_menu'
 };
