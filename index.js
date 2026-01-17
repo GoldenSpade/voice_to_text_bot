@@ -5,6 +5,7 @@ import { handleTranscription } from './modules/transcriptionHandler.js';
 import { handleTranscriptionAndTranslation } from './modules/translationHandler.js';
 import { handleVoiceGeneration } from './modules/voiceHandler.js';
 import { handleTextTranslation } from './modules/textTranslationHandler.js';
+import { handleTextToVoice } from './modules/textToVoiceHandler.js';
 
 // Initialize bot
 const bot = new Telegraf(config.TELEGRAM_BOT_TOKEN);
@@ -55,6 +56,15 @@ bot.hears('🔄 Translate Text', (ctx) => {
   );
 });
 
+// Text to voice button handler
+bot.hears('🔊 Text to Voice', (ctx) => {
+  userSessions.set(ctx.from.id, { mode: 'text_to_voice', step: 'voice' });
+  ctx.reply(
+    'Select a voice for text-to-speech:',
+    voiceSelectionKeyboard()
+  );
+});
+
 // Pagination handler
 bot.action(/^page_(\d+)$/, (ctx) => {
   const page = parseInt(ctx.match[1]);
@@ -85,14 +95,25 @@ bot.action(/^voice_(.+)$/, (ctx) => {
   const session = userSessions.get(ctx.from.id) || {};
 
   session.selectedVoice = voice;
-  session.step = 'audio';
   userSessions.set(ctx.from.id, session);
 
   ctx.answerCbQuery();
-  ctx.editMessageText(
-    `Voice selected: ${voice.toUpperCase()}\n\n` +
-    'Now send me a voice message or audio file to transcribe, translate and generate voice.'
-  );
+
+  if (session.mode === 'text_to_voice') {
+    session.step = 'text';
+    userSessions.set(ctx.from.id, session);
+    ctx.editMessageText(
+      `Voice selected: ${voice.toUpperCase()}\n\n` +
+      'Now send me a text message to convert to voice.'
+    );
+  } else {
+    session.step = 'audio';
+    userSessions.set(ctx.from.id, session);
+    ctx.editMessageText(
+      `Voice selected: ${voice.toUpperCase()}\n\n` +
+      'Now send me a voice message or audio file to transcribe, translate and generate voice.'
+    );
+  }
 });
 
 // Language selection callback handler
@@ -214,7 +235,7 @@ bot.on('text', async (ctx) => {
   // Skip if it's a command or button press
   if (ctx.message.text.startsWith('/') || ctx.message.text.startsWith('🎤') ||
       ctx.message.text.startsWith('🌍') || ctx.message.text.startsWith('🎙️') ||
-      ctx.message.text.startsWith('🔄')) {
+      ctx.message.text.startsWith('🔄') || ctx.message.text.startsWith('🔊')) {
     return;
   }
 
@@ -228,6 +249,10 @@ bot.on('text', async (ctx) => {
 
   if (session.mode === 'text_translate' && session.targetLanguage) {
     await handleTextTranslation(ctx, session.targetLanguage);
+    userSessions.delete(ctx.from.id);
+    await ctx.reply('Choose an option:', mainMenuKeyboard());
+  } else if (session.mode === 'text_to_voice' && session.selectedVoice) {
+    await handleTextToVoice(ctx, session.selectedVoice);
     userSessions.delete(ctx.from.id);
     await ctx.reply('Choose an option:', mainMenuKeyboard());
   } else {
