@@ -7,8 +7,7 @@ import { LANGUAGES, VOICES, MENU_ACTIONS, LANGUAGES_PER_PAGE, VOICES_PER_PAGE } 
 export const mainMenuKeyboard = () => {
   return Markup.keyboard([
     [Markup.button.text('🎤 Transcribe Audio'), Markup.button.text('🌍 Transcribe & Translate')],
-    [Markup.button.text('🎙️ Transcribe, Translate & Voice')],
-    [Markup.button.text('🔄 Translate Text')]
+    [Markup.button.text('🎙️ Transcribe, Translate & Voice'), Markup.button.text('🔄 Translate Text')]
   ])
     .resize()
     .persistent();
