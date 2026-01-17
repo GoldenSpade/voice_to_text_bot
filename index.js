@@ -23,10 +23,7 @@ bot.start((ctx) => {
 // Main menu button handler
 bot.hears('🎤 Transcribe Audio', (ctx) => {
   userSessions.set(ctx.from.id, { mode: 'transcribe' });
-  ctx.reply(
-    'Send me a voice message or audio file and I will transcribe it.',
-    { reply_markup: { remove_keyboard: true } }
-  );
+  ctx.reply('Send me a voice message or audio file and I will transcribe it.');
 });
 
 // Translate button handler
@@ -81,11 +78,9 @@ bot.on('voice', async (ctx) => {
   if (session.mode === 'transcribe') {
     await handleTranscription(ctx);
     userSessions.delete(ctx.from.id);
-    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else if (session.mode === 'translate' && session.targetLanguage) {
     await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
     userSessions.delete(ctx.from.id);
-    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else {
     ctx.reply('Please select a language first.');
   }
@@ -106,11 +101,9 @@ bot.on('audio', async (ctx) => {
   if (session.mode === 'transcribe') {
     await handleTranscription(ctx);
     userSessions.delete(ctx.from.id);
-    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else if (session.mode === 'translate' && session.targetLanguage) {
     await handleTranscriptionAndTranslation(ctx, session.targetLanguage);
     userSessions.delete(ctx.from.id);
-    await ctx.reply('👇 Choose an option:', mainMenuKeyboard());
   } else {
     ctx.reply('Please select a language first.');
   }
