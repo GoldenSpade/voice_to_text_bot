@@ -119,7 +119,6 @@ bot.hears('📖 Help', (ctx) => {
     '*Available Voices:* 9 different voices - Alloy, Ash, Coral, Echo, Fable, Nova, Onyx, Sage, Shimmer.\n\n' +
     '💡 *Tips:*\n' +
     '• Use /menu command anytime to return to main menu\n' +
-    '• All audio files are automatically deleted after processing\n' +
     '• Supports various audio formats: mp3, ogg, wav, m4a, and more';
 
   ctx.reply(helpMessage, { parse_mode: 'Markdown' });
