@@ -14,7 +14,7 @@ if (!fs.existsSync(tempDir)) {
 }
 
 /**
- * Download file from URL to filepath
+ * Download file from URL to local filepath
  */
 export const downloadFile = (url, filepath) => {
   return new Promise((resolve, reject) => {
@@ -33,7 +33,7 @@ export const downloadFile = (url, filepath) => {
 };
 
 /**
- * Delete file safely
+ * Delete file safely (ignores errors)
  */
 export const deleteFile = (filepath) => {
   try {
@@ -43,4 +43,33 @@ export const deleteFile = (filepath) => {
   } catch (error) {
     console.error('Error deleting file:', error);
   }
+};
+
+/**
+ * Extract fileId and extension from a voice or audio message.
+ * Downloads the file to temp dir and returns the local filepath.
+ * Returns null if the message contains neither voice nor audio.
+ *
+ * @param {import('telegraf').Context} ctx
+ * @returns {Promise<string|null>} local filepath or null
+ */
+export const downloadAudioFromCtx = async (ctx) => {
+  const message = ctx.message ?? ctx.update.message;
+
+  let fileId, fileExtension;
+
+  if (message.voice) {
+    fileId = message.voice.file_id;
+    fileExtension = 'ogg';
+  } else if (message.audio) {
+    fileId = message.audio.file_id;
+    fileExtension = 'mp3';
+  } else {
+    return null;
+  }
+
+  const fileLink = await ctx.telegram.getFileLink(fileId);
+  const filepath = path.join(tempDir, `${Date.now()}.${fileExtension}`);
+  await downloadFile(fileLink.href, filepath);
+  return filepath;
 };
