@@ -19,7 +19,16 @@ const userSessions = new Map();
 
 bot.start((ctx) => {
   userSessions.delete(ctx.from.id);
-  ctx.reply('Hello! I am a bot for transcribing voice messages.\n\nChoose an option:', mainMenuKeyboard());
+  ctx.reply(
+    'Hello! I can help you with voice and text processing:\n\n' +
+    '🎤 Transcribe voice messages to text\n' +
+    '🌍 Transcribe audio and translate it\n' +
+    '🎙️ Transcribe, translate and generate voice\n' +
+    '🔄 Translate text to another language\n' +
+    '🔊 Convert text to speech\n\n' +
+    'Choose an option:',
+    mainMenuKeyboard()
+  );
 });
 
 bot.command('menu', (ctx) => {
